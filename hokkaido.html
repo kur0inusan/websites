@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>北海道フラッシュカード - Google Maps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #eef2f5;
+      --text-main: #565d6d;
+      --text-sub: #8a92a3;
+      --accent-blue: #5e81ac;
+      --accent-red: #d06f74;
+      --shadow-light: #ffffff;
+      --shadow-dark: #ced3dc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--bg-color);
+      height: 100vh;
+      overflow: hidden;
+      color: var(--text-main);
+    }
+
+    header {
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      background-color: var(--bg-color);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: var(--text-main);
+      text-shadow: 1px 1px 1px #fff;
+    }
+
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      width: 100%;
+      flex-grow: 1;
+      padding: 1rem;
+      padding-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    #card {
+      padding: 1.5rem;
+      background-color: var(--bg-color);
+      border-radius: 20px;
+      box-shadow: 12px 12px 24px var(--shadow-dark),
+        -12px -12px 24px var(--shadow-light);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      z-index: 5;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      box-shadow: inset 5px 5px 10px var(--shadow-dark),
+        inset -5px -5px 10px var(--shadow-light);
+      padding: 8px;
+      background-color: var(--bg-color);
+      flex-grow: 1;
+    }
+
+    /* PC向けレイアウト */
+    @media (min-width: 800px) {
+      #container {
+        flex-direction: row;
+        align-items: stretch;
+        padding: 2rem;
+        gap: 2rem;
+        max-width: 1400px;
+      }
+
+      #card {
+        width: 320px;
+        height: auto;
+        margin-bottom: 0;
+        justify-content: center;
+      }
+
+      #map {
+        height: auto;
+      }
+    }
+
+    /* スマホ向け調整 */
+    @media (max-width: 799px) {
+      h1 {
+        font-size: 1.1rem;
+      }
+
+      header {
+        padding: 0.5rem;
+      }
+
+      #container {
+        padding: 0.5rem;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+
+      #card {
+        max-width: 100%;
+        padding: 1rem;
+        border-radius: 15px;
+      }
+
+      #name {
+        font-size: 1.5rem;
+        margin-bottom: 0.2rem;
+      }
+
+      #yomi {
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+      }
+
+      button {
+        margin: 0.2rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    button {
+      margin: 0.5rem;
+      padding: 0.8rem 1.6rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      background-color: var(--bg-color);
+      box-shadow: 6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: inset 4px 4px 8px var(--shadow-dark),
+        inset -4px -4px 8px var(--shadow-light);
+    }
+
+    button#actionBtn {
+      color: var(--accent-blue);
+      min-width: 140px;
+    }
+
+    button#actionBtn.next-mode {
+      color: var(--accent-red);
+    }
+
+    #name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-shadow: 1px 1px 0px #fff;
+    }
+
+    #yomi {
+      color: var(--text-sub);
+      font-size: 1.1rem;
+      min-height: 1.6em;
+      font-weight: 500;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>北海道 地名フラッシュカード</h1>
+  </header>
+
+  <div id="container">
+    <div id="card">
+      <div id="name">準備完了</div>
+      <div id="yomi">「スタート」を押してください</div>
+      <div class="controls">
+        <button id="actionBtn" class="next-mode">スタート</button>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script>
+    let map;
+    let markers = [];
+    let current = null;
+    let currentShown = false;
+
+    // 出題順管理用配列
+    let questionQueue = [];
+
+    // データの定義: lat, lon に注意
+    const places = [
+      { name: "新千歳空港", yomi: "しんちとせくうこう", lat: 42.7752, lon: 141.6923 },
+      { name: "旭川空港", yomi: "あさひかわくうこう", lat: 43.6707, lon: 142.4475 },
+      { name: "とかち帯広空港", yomi: "とかちおびひろくうこう", lat: 42.8904, lon: 143.1582 },
+      { name: "釧路空港", yomi: "くしろくうこう", lat: 43.0410, lon: 144.1920 },
+      { name: "女満別空港", yomi: "めまんべつくうこう", lat: 43.8806, lon: 144.1640 },
+
+      { name: "天塩川", yomi: "てしおがわ", lat: 44.888, lon: 142.338 },
+      { name: "留萌川", yomi: "るもいがわ", lat: 43.934, lon: 141.644 },
+      { name: "石狩川", yomi: "いしかりがわ", lat: 43.170, lon: 141.740 },
+      { name: "尻別川", yomi: "しりべつがわ", lat: 42.785, lon: 140.704 },
+      { name: "後志利別川", yomi: "しりべつとしべつがわ", lat: 42.565, lon: 140.105 },
+      { name: "鵡川", yomi: "むかわ", lat: 42.584, lon: 141.926 },
+      { name: "沙流川", yomi: "さるがわ", lat: 42.657, lon: 142.073 },
+      { name: "十勝川", yomi: "とかちがわ", lat: 42.994, lon: 143.202 },
+      { name: "釧路川", yomi: "くしろがわ", lat: 43.475, lon: 144.341 },
+      { name: "網走川", yomi: "あばしりがわ", lat: 44.021, lon: 144.263 },
+      { name: "常呂川", yomi: "ところがわ", lat: 43.955, lon: 143.820 },
+      { name: "湧別川", yomi: "ゆうべつがわ", lat: 44.221, lon: 143.598 },
+      { name: "渚滑川", yomi: "しょこつがわ", lat: 44.333, lon: 143.353 },
+
+      { name: "函館", yomi: "はこだて", lat: 41.768, lon: 140.728 },
+      { name: "ニセコ", yomi: "にせこ", lat: 42.804, lon: 140.688 },
+      { name: "小樽", yomi: "おたる", lat: 43.190, lon: 140.994 },
+      { name: "札幌", yomi: "さっぽろ", lat: 43.061, lon: 141.354 },
+      { name: "室蘭", yomi: "むろらん", lat: 42.349, lon: 140.973 },
+      { name: "登別", yomi: "のぼりべつ", lat: 42.412, lon: 141.106 },
+      { name: "白老", yomi: "しらおい", lat: 42.553, lon: 141.363 },
+      { name: "苫小牧", yomi: "とまこまい", lat: 42.634, lon: 141.606 },
+      { name: "千歳", yomi: "ちとせ", lat: 42.822, lon: 141.652 },
+      { name: "日高", yomi: "ひだか", lat: 42.489, lon: 142.008 },
+      { name: "富良野", yomi: "ふらの", lat: 43.342, lon: 142.383 },
+      { name: "美瑛", yomi: "びえい", lat: 43.585, lon: 142.468 },
+
+      { name: "旭川", yomi: "あさひかわ", lat: 43.770, lon: 142.364 },
+      { name: "留萌", yomi: "るもい", lat: 43.941, lon: 141.645 },
+      { name: "帯広", yomi: "おびひろ", lat: 42.923, lon: 143.196 },
+      { name: "釧路", yomi: "くしろ", lat: 42.984, lon: 144.381 },
+      { name: "根室", yomi: "ねむろ", lat: 43.330, lon: 145.582 },
+      { name: "標津", yomi: "しべつ", lat: 43.662, lon: 145.132 },
+      { name: "羅臼", yomi: "らうす", lat: 44.020, lon: 145.189 },
+      { name: "網走", yomi: "あばしり", lat: 44.021, lon: 144.273 },
+      { name: "紋別", yomi: "もんべつ", lat: 44.356, lon: 143.354 },
+      { name: "名寄", yomi: "なよろ", lat: 44.355, lon: 142.463 },
+
+      { name: "稚内", yomi: "わっかない", lat: 45.415, lon: 141.673 },
+      { name: "天塩", yomi: "てしお", lat: 44.888, lon: 141.751 },
+      { name: "渡島半島", yomi: "おしまはんとう", lat: 41.9, lon: 140.3 },
+      { name: "積丹半島", yomi: "しゃこたんはんとう", lat: 43.3, lon: 140.6 },
+      { name: "羊蹄山", yomi: "ようていざん", lat: 42.833, lon: 140.806 },
+      { name: "洞爺湖", yomi: "とうやこ", lat: 42.606, lon: 140.833 },
+      { name: "支笏湖", yomi: "しこつこ", lat: 42.732, lon: 141.399 },
+      { name: "有珠山", yomi: "うすざん", lat: 42.543, lon: 140.838 },
+
+      { name: "大雪山", yomi: "たいせつざん", lat: 43.663, lon: 142.854 },
+      { name: "襟裳岬", yomi: "えりもみさき", lat: 42.011, lon: 143.247 },
+      { name: "釧路湿原", yomi: "くしろしつげん", lat: 43.193, lon: 144.425 },
+      { name: "阿寒湖", yomi: "あかんこ", lat: 43.450, lon: 144.102 },
+      { name: "摩周湖", yomi: "ましゅうこ", lat: 43.570, lon: 144.563 },
+      { name: "根室半島", yomi: "ねむろはんとう", lat: 43.2, lon: 145.6 },
+      { name: "納沙布岬", yomi: "のさっぷみさき", lat: 43.388, lon: 145.818 },
+      { name: "国後島", yomi: "くなしりとう", lat: 44.066, lon: 145.750 },
+      { name: "歯舞群島", yomi: "はぼまいぐんとう", lat: 43.5, lon: 146.0 },
+
+      { name: "根室海峡", yomi: "ねむろかいきょう", lat: 43.5, lon: 145.5 },
+      { name: "知床半島", yomi: "しれとこはんとう", lat: 44.1, lon: 145.1 },
+      { name: "羅臼岳", yomi: "らうすだけ", lat: 44.075, lon: 145.099 },
+      { name: "サロマ湖", yomi: "さろまこ", lat: 44.133, lon: 143.916 },
+      { name: "宗谷岬", yomi: "そうやみさき", lat: 45.523, lon: 141.936 },
+      { name: "利尻島", yomi: "りしりとう", lat: 45.184, lon: 141.239 },
+      { name: "礼文島", yomi: "れぶんとう", lat: 45.333, lon: 141.033 }
+    ];
+
+    // Google Maps 初期化
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 43.564, lng: 142.346 }, // 北海道中心
+        zoom: 7,
+        styles: [ /* オプション: マップの見た目をカスタマイズする場合はここにスタイル追加 */]
+      });
+
+      // 全地点のマーカーを作成
+      places.forEach((p, i) => {
+        // 修正: p.lon を lng として渡す
+        const marker = new google.maps.Marker({
+          position: { lat: p.lat, lng: p.lon },
+          map: null, // 初期状態は非表示
+          title: p.name
+        });
+        markers.push(marker);
+
+        marker.addListener("click", () => {
+          setCurrent(i);
+          revealReading();
+        });
+      });
+
+      // 最初からシャッフルしておく
+      reshuffleQueue();
+    }
+
+    // インデックスリストを作成してシャッフル
+    function reshuffleQueue() {
+      questionQueue = places.map((_, i) => i);
+      // Fisher-Yates Shuffle
+      for (let i = questionQueue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questionQueue[i], questionQueue[j]] = [questionQueue[j], questionQueue[i]];
+      }
+      console.log("Shuffled!");
+    }
+
+    // 次の問題へ
+    function nextQuestion() {
+      if (questionQueue.length === 0) {
+        alert("一周しました！シャッフルして最初から出題します。");
+        reshuffleQueue();
+      }
+
+      const idx = questionQueue.pop(); // リストの末尾から取り出す
+      setCurrent(idx);
+    }
+
+    // フラッシュカードにセット
+    function setCurrent(idx) {
+      current = places[idx];
+      currentShown = false;
+      document.getElementById("name").textContent = current.name;
+      document.getElementById("yomi").textContent = "読みは隠されています";
+
+      // ボタンの状態更新: 「答えを見る」(青)
+      const btn = document.getElementById("actionBtn");
+      btn.textContent = "答えを見る";
+      btn.classList.remove("next-mode");
+
+      // 出題時はピンをすべて隠す
+      markers.forEach(m => m.setMap(null));
+    }
+
+    // 読みを表示
+    function revealReading() {
+      if (!current) return;
+      document.getElementById("yomi").textContent = current.yomi;
+      currentShown = true;
+
+      // ボタンの状態更新: 「次の問題」(赤)
+      const btn = document.getElementById("actionBtn");
+      btn.textContent = "次の問題";
+      btn.classList.add("next-mode");
+
+      const idx = places.indexOf(current);
+      // 答えを表示するタイミングでピンを表示
+      if (markers[idx]) {
+        markers[idx].setMap(map);
+        markers[idx].setIcon("https://maps.google.com/mapfiles/ms/icons/red-dot.png");
+        // ピンの位置にパンする
+        map.panTo(markers[idx].getPosition());
+        // ズームが遠すぎたら少し寄る
+        if (map.getZoom() < 8) map.setZoom(8);
+      }
+    }
+
+    // ボタンイベント（一つに統合）
+    document.getElementById("actionBtn").addEventListener("click", () => {
+      // まだカードがない(初期状態)なら次の問題へ
+      if (!current) {
+        nextQuestion();
+        return;
+      }
+
+      if (currentShown) {
+        // 既に答えを見ている -> 次の問題へ
+        nextQuestion();
+      } else {
+        // まだ答えを見ていない -> 答えを表示
+        revealReading();
+      }
+    });
+  </script>
+
+  <!-- Google Maps APIキー -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhwuFnEHhyIUS3XauAOYD95SDNnq75sxY&callback=initMap">
+  </script>
+
+</body>
+
+</html>
