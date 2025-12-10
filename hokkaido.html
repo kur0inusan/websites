@@ -240,8 +240,8 @@
     const places = [
       { name: "新千歳空港", yomi: "しんちとせくうこう", lat: 42.7752, lon: 141.6923 },
       { name: "旭川空港", yomi: "あさひかわくうこう", lat: 43.6707, lon: 142.4475 },
-      { name: "とかち帯広空港", yomi: "とかちおびひろくうこう", lat: 42.7617, lon: 143.2582 },
-      { name: "釧路空港", yomi: "くしろくうこう", lat: 43.0410, lon: 144.1920 },
+      { name: "とかち帯広空港", yomi: "とかちおびひろくうこう", lat: 42.733, lon: 143.217 },
+      { name: "釧路空港", yomi: "くしろくうこう", lat: 42.735, lon: 144.994 },
       { name: "女満別空港", yomi: "めまんべつくうこう", lat: 43.8806, lon: 144.1640 },
 
       { name: "天塩川", yomi: "てしおがわ", lat: 44.888, lon: 142.338 },
@@ -320,7 +320,7 @@
 
       // 全地点のマーカーを作成
       places.forEach((p, i) => {
-        // 修正: p.lon を lng として渡す
+        // p.lon を lng として渡す
         const marker = new google.maps.Marker({
           position: { lat: p.lat, lng: p.lon },
           map: null, // 初期状態は非表示
@@ -424,6 +424,4 @@
 
 </body>
 
-
 </html>
-
